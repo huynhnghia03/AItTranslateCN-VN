@@ -1,103 +1,107 @@
-import Image from "next/image";
+'use client';
+
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import Header from './components/Header';
+import Sidebar from './components/Sidebar';
+import ChatSection from './components/ChatSection';
+import RecordSection from './components/RecordSection';
+import DocumentSection from './components/DocumentSection';
+import { Toaster } from 'react-hot-toast';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Cookies from 'js-cookie';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [activeSection, setActiveSection] = useState('chat');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  // Kiểm tra token và set activeSection từ URL params
+  useEffect(() => {
+    const token = Cookies.get('token');
+    if (!token) {
+      router.push('/');
+    } else {
+      setIsLoggedIn(true);
+      
+      // Lấy section từ URL parameters
+      const sectionFromUrl = searchParams.get('section');
+      if (sectionFromUrl && ['chat', 'record', 'document'].includes(sectionFromUrl)) {
+        setActiveSection(sectionFromUrl);
+      }
+    }
+  }, [router, searchParams]);
+
+  // Đăng xuất
+  const handleLogout = () => {
+    Cookies.remove('token'); // Xóa token khỏi cookie
+    router.push('/login'); // Chuyển hướng đến trang đăng nhập
+  };
+
+  const menuItems = [
+    { id: 'chat', label: 'Chatbot', icon: '💬' },
+    { id: 'record', label: 'Record', icon: '🎙️' },
+    { id: 'document', label: 'Document', icon: '📝' },
+    { id: 'video', label: 'Video', icon: '🎥' },
+  ];
+
+  // Khi chọn section
+  const handleSectionChange = (sectionId: string) => {
+    if (sectionId === 'video') {
+      router.push('/videoEditor'); // 👉 chuyển sang trang mới
+      return;
+    }
+    
+    // Cập nhật activeSection và URL parameters
+    setActiveSection(sectionId);
+    
+    // Cập nhật URL với section parameter
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set('section', sectionId);
+    router.replace(newUrl.pathname + newUrl.search);
+    
+    if (window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-screen w-full bg-gray-50">
+      {/* Header */}
+      <Header
+        toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        isLoggedIn={isLoggedIn}
+        onLogout={handleLogout}
+      />
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <Sidebar
+          menuItems={menuItems}
+          activeSection={activeSection}
+          setActiveSection={handleSectionChange}
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
+
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6 transition-all duration-300 md:ml-64 mt-15 h-[calc(100vh-64px)]">
+          <div className="container mx-auto max-w-6xl h-full">
+            <div className="bg-white rounded-xl shadow-sm h-full">
+              {activeSection === 'chat' && <ChatSection />}
+              {activeSection === 'record' && <RecordSection />}
+              {activeSection === 'document' && <DocumentSection />}
+              {/* ❌ KHÔNG render <CapCutProEditor /> ở đây nữa */}
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+      <Toaster position="top-right" />
     </div>
   );
 }
