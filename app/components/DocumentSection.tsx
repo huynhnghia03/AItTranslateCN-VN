@@ -779,6 +779,7 @@
 //     </div>
 //   );
 // }
+
 "use client";
 import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
@@ -816,7 +817,7 @@ export default function DocumentSection() {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [translatedResult, setTranslatedResult] = useState<TranslatedResult | null>(null);
-  const { getHistoryByType, fetchHistory } = useHistory("document_translate");
+  const { getHistoryByType, fetchHistory ,clearHistory} = useHistory("document_translate");
   const history: HistoryItem[] = getHistoryByType('document_translate');
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>('light');
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -969,13 +970,14 @@ export default function DocumentSection() {
 
   const confirmClearHistory = async () => {
     try {
-      const response = await fetch('http://localhost:8008/history', {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${Cookies.get('token')}` },
-      });
-      if (!response.ok) {
-        throw new Error('Xóa tất cả lịch sử thất bại');
-      }
+      // const response = await fetch('http://localhost:8008/history', {
+      //   method: 'DELETE',
+      //   headers: { Authorization: `Bearer ${Cookies.get('token')}` },
+      // });
+      // if (!response.ok) {
+      //   throw new Error('Xóa tất cả lịch sử thất bại');
+      // }
+      clearHistory('document_translate');
       await fetchHistory('document_translate');
       toast.success('Xóa tất cả lịch sử thành công!');
       setShowConfirmClear(false);

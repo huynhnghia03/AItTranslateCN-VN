@@ -326,7 +326,7 @@ const handleStartRecording = () => {
         throw new Error('Vui lòng đăng nhập');
       }
 
-      const response = await fetch(`http://localhost:8007/history/${historyId}`, {
+      const response = await fetch(`http://localhost:8008/history/${historyId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
