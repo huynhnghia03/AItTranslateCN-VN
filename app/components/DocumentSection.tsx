@@ -908,16 +908,20 @@ export default function DocumentSection() {
         throw new Error(`Xử lý thất bại: ${errorText}`);
       }
       const result = await response.json();
-      setTranslatedResult({
-        original_text: result.original_text,
-        translated_text: result.translated_text,
-        file_name: result.file_name,
-        translated_file_name: result.translated_file_name,
-      });
-      setProgress(100);
-      toast.success('Dịch tài liệu thành công!');
-      if (result.translated_file_name) {
-        await downloadTranslatedFile(result.translated_file_name);
+      if(result.translated)
+        setTranslatedResult({
+          original_text: result.original_text,
+          translated_text: result.translated_text,
+          file_name: result.file_name,
+          translated_file_name: result.translated_file_name,
+        });
+        setProgress(100);
+        toast.success('Dịch tài liệu thành công!');
+        if (result.translated_file_name) {
+          await downloadTranslatedFile(result.translated_file_name);
+        }
+      else {
+        toast.error('Không có nội dung để dịch!');
       }
     } catch (error: any) {
       console.error('Document translation error:', error);
